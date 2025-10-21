@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-10-21 16:29:49 by Eclipse SUMO GUI Version 1.24.0
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="D:\Rafa\TrafficCongestionPoliciesEffect-SimulationAndModulation\Working_manhattan\manhattan.net.xml"/>
+        <route-files value="D:\Rafa\TrafficCongestionPoliciesEffect-SimulationAndModulation\Working_manhattan\flows.rou.xml"/>
+    </input>
+
+    <output>
+        <emission-output value="D:\Rafa\TrafficCongestionPoliciesEffect-SimulationAndModulation\Working_manhattan\emissions.xml"/>
+        <summary-output value="D:\Rafa\TrafficCongestionPoliciesEffect-SimulationAndModulation\Working_manhattan\summary.xml"/>
+        <tripinfo-output value="D:\Rafa\TrafficCongestionPoliciesEffect-SimulationAndModulation\Working_manhattan\tripinfo.xml"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="3600"/>
+    </time>
+
+    <report>
+        <verbose value="true"/>
+        <no-step-log value="false"/>
+    </report>
+
+</sumoConfiguration>
