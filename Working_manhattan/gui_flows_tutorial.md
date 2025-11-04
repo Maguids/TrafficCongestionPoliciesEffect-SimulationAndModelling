@@ -1,4 +1,4 @@
-# Tutorial To Generate Simulations
+# Tutorial to Generate Flows for Simulations
 
 1. Open **netedit.exe** and start creating a network (I chose a grid to represent Manhattan, everything is easily adaptable, just gotta add or delete nodes and edges)
 
