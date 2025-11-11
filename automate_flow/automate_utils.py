@@ -123,7 +123,7 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template)
 #        Running SUMO
 # ----------------------------
 def runSUMO(flowfile, netfile, tripinfo_out,
-                  emissions_out, additional_sumo_args):
+                  emissions_out, additional_sumo_args=None):
     """
     Calls SUMO in batch mode, using a flowfile. Produces tripinfo and emissions xml outputs.
     Returns (returncode, stdout, stderr).
