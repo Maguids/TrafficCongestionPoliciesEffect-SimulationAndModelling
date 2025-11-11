@@ -49,6 +49,10 @@ def add_flow(fid, route_edges, start, end, percentage, num_agents, vtype, root):
         },
     )
 
+
+# TODO: Make this read the entire template and consider multiple
+# flow for each type, meaning not just 1 flow for private and 
+# another for public (which is what it's currently doing)!
 def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template):
     """
     Generate a SUMO-compatible routes file with <vType>, <route>, and <flow>.
@@ -106,6 +110,10 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template)
         fid, route_edges, start, end, percentage = flow
         add_flow(fid, route_edges, start, end, percentage, num_private, PRIVATE_VTYPE, root)
 
+    # TODO: Assuming a bus takes 80 people, num_public is actually num_public // 80
+    # TODO: Add another parameter to add_flow to detect public transportation cases
+    # and change the number of vehicles spawned
+    # TODO: Number of buses is always the same, even if they don't have people they'll spawn
     # Add public flows
     for flow in flows_template["public_flows"]:
         fid, route_edges, start, end, percentage = flow
@@ -222,17 +230,25 @@ def runSim(n_simulations=3, days_per_sim=7, policy=None,
             # Run SUMO once for this day
             ret, out, err = runSUMO(flowfile, SUMO_NET_FILE, tripinfo_out, emissions_out)
             if ret != 0: print(f"SUMO returned non-zero code {ret}. stderr:\n{err}")
-            else:
-                print(f"Simulation{sim_id}, day {day}: DONE.")
+            else: print(f"Simulation{sim_id}, day {day}: DONE.")
 
-            # TODO: make this general use
-            emissions_csv_tool_out = OUT_DIR / f"emissions_tool_sim{sim_id}_day{day}_{policy.get('id')}.csv"
+            # Emissions .xml -> .csv pipeline
+            emissions_csv_tool_out = OUT_DIR / f"emissions_sim{sim_id}_day{day}_{policy.get('id')}.csv"
             if emissions_out.exists():
                 cmd = ["python", str(XML2CSV_PATH), str(emissions_out), "--output", str(emissions_csv_tool_out)]
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 if result.returncode == 0: print(f"Emissions CSV converted: {emissions_csv_tool_out}")
                 else: print(f"CONVERSION FAILED:\n{result.stderr}")
             else: print(f"EMISSIONS XML NOT FOUND: {emissions_out}")
+
+            # Tripinfo .xml -> .csv pipeline
+            tripinfo_csv_tool_out = OUT_DIR / f"tripinfo_sim{sim_id}_day{day}_{policy.get('id')}.csv"
+            if tripinfo_out.exists():
+                cmd = ["python", str(XML2CSV_PATH), str(tripinfo_out), "--output", str(tripinfo_csv_tool_out)]
+                result = subprocess.run(cmd, capture_output=True, text=True)
+                if result.returncode == 0: print(f"tripinfo CSV converted: {tripinfo_csv_tool_out}")
+                else: print(f"CONVERSION FAILED:\n{result.stderr}")
+            else: print(f"tripinfo XML NOT FOUND: {tripinfo_out}")
 
 
     print("All simulations completed.")
