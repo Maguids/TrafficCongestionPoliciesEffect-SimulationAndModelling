@@ -4,12 +4,18 @@
 
     <!-- simple vehicle type -->
     <vType id="car" length="4.50" minGap="2.50" maxSpeed="13.90" emissionClass="HBEFA3/PC_G_EU6" guiShape="passenger" color="red" accel="2.6" decel="4.5" sigma="0.5"/>
-    <vType id="bus" length="7.50" minGap="2.50" maxSpeed="10" emissionClass="HBEFA3/PC_G_EU6" guiShape="bus" color="blue" accel="2.6" decel="4.5" sigma="0.5"/>
+    <vType id="bus" length="13.50" minGap="2.50" maxSpeed="8.00" emissionClass="HBEFA3/PC_G_EU6" guiShape="bus" color="blue" accel="2.0" decel="4.5" sigma="0.5"/>
 
-    <!-- Flow 1: A4B4 -> E2D2, one vehicle every 6 seconds -->
-    <route id="r_upper" edges="A4B4 B4C4 C4D4 D4E4 E4E3 E3E2 E2D2"/>
+    <!-- Flow 1: A2A3 -> E2D2, one vehicle every 6 seconds -->
+    <route id="r_upper" edges="A2A3 A3B3 B3C3 C3C2 C2D2 D2E2"/>
     <flow id="flow_0" type="car" begin="0" end="3600" period="6.0" route="r_upper"/>
 
-    <route id="bus" edges="A2A3 A3B3 B3C3 C3C2 C2C1 C1C0 C0B0"/>
-    <flow id="flow_1" type="bus" begin="0" end="3600" period="6.0" route="bus"/>
+    <!-- Flow 2: A2A1 -> D2E2, one bus every 12 seconds -->
+
+    <route id="bus" edges="A2A1 A1B1 B1C1 C1C2 C2D2 D2E2"/>
+    <flow id="flow_1" type="bus" begin="0" end="3600" period="12.0" route="bus">
+        <stop busStop="bs_0" duration="15"/>
+        <stop busStop="bs_1" duration="15"/>
+        <stop busStop="bs_2" duration="15"/>
+    </flow>
 </routes>
