@@ -1,10 +1,14 @@
 # Tutorial to Generate Flows for Simulations
 
+## Essential for Automation
+
 1. Open **netedit.exe** and start creating a network (I chose a grid to represent Manhattan, everything is easily adaptable, just gotta add or delete nodes and edges)
 
 2. Manually create routes in netedit (easier because we don't need any know-how as to determine edge IDs, which is very annoying) and save to the routes file
 
-3. Use the command `duarouter -n YOUR_NETWORK.net.xml -t YOUR_NETEDIT_ROUTES_FILE.rou.xml -o routes.rou.xml` to generate route files with edge IDs
+3. Use the command `duarouter -n YOUR_NETWORK.net.xml -t YOUR_NETEDIT_ROUTES_FILE.rou.xml -o routes.rou.xml` to generate route files with edge IDs (be careful as these overwrite the previous files, so if you want to properly save each policy configuration, move the new files out into a different folder!)
+
+## Not Needed Anymore
 
 4. Define flows based on your manually created routes and vehicle types, for example:
 
