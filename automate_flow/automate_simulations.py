@@ -18,7 +18,9 @@ from automate_utils import *
 
 from pathlib import Path
 
-netfile = Path(r"D:\Rafa\A1 Mestrado\Obsidian-Masters-Degree\1o Ano\MS\automate_sumo\core\manhattan.net.xml")
+#netfile = Path(r"D:\Rafa\A1 Mestrado\Obsidian-Masters-Degree\1o Ano\MS\automate_sumo\core\manhattan.net.xml")
+netfile = Path(r"D:\Rafa\TrafficCongestionPoliciesEffect-SimulationAndModulation\automate_flow\core\manhattan.net.xml")
+
 print(netfile.exists(), netfile)
 
 # ------------------ SUMO Setup ------------------- #
@@ -27,7 +29,7 @@ print(netfile.exists(), netfile)
 # Can change to 'sumo-gui' for visualization
 SUMO_BINARY = os.environ.get("SUMO_BINARY", "sumo")  
 CWD = os.getcwd()
-SUMO_NET_FILE = CWD+"\\core\\"+"manhattan.net.xml"
+SUMO_NET_FILE = CWD+"\\automate_flow\\core\\"+"manhattan.net.xml"
 
 
  
@@ -61,10 +63,19 @@ if __name__ == "__main__":
     "private_flows": [
         # Private vehicle flow: cars using route "r_upper"
         # ["A4B4", "B4C4", "C4D4", "D4E4", "E4E3" ,"E3E2" ,"E2D2"] might not work as list
+
+        # Percentages here are used to define the percentage of total people attributed to
+        # each specific flow (in this case, private cars)
         ("flow_0", "A4B4 B4C4 C4D4 D4E4 E4E3 E3E2 E2D2", 0, SIM_RUNTIME, 1.0),  # 100% of private flow
     ],
     "public_flows": [
         # Public transport flow: buses using route "bus"
+
+        # In this case, it also assigns a percentage of people to each flow of buses
+        # However, that number is divided by 80 to accomodate and create new buses
+        # TODO: Buses always run, even if empty. Cars created must ALWAYS be the same.
+        # The percentage is only important to understande whether we can allocate more
+        # people to buses or if they're all full. 
         ("flow_1", "A2A3 A3B3 B3C3 C3C2 C2C1 C1C0 C0B0", 0, SIM_RUNTIME, 1.0),  # 100% of public flow
     ],
 }
