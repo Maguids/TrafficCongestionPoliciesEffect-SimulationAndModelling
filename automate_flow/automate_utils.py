@@ -7,9 +7,13 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from typing import Dict, List
 import pandas as pd 
+
+from send2trash import send2trash
+
+
 from automate_simulations import PRIVATE_VTYPE, PUBLIC_VTYPE, SUMO_BINARY
 from automate_simulations import PEOPLE_GLOBAL, FLOWS_DIR, RAW_OUT_DIR
-from automate_simulations import SUMO_NET_FILE, OUT_DIR, RAW_OUT_DIR, SIM_RUNTIME
+from automate_simulations import SUMO_NET_FILE, CSV_OUT_DIR, RAW_OUT_DIR, SIM_RUNTIME
 
 # CSV converter!
 XML2CSV_PATH = Path(r"D:\Rafa\SUMO\tools\xml\xml2csv.py")
@@ -59,6 +63,7 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template)
     """
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
+    # Total number of people is split between private and public 
     num_public = int(round(num_agents * acceptance_rate_public))
     num_private = max(0, num_agents - num_public)
 
@@ -114,6 +119,7 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template)
     # TODO: Add another parameter to add_flow to detect public transportation cases
     # and change the number of vehicles spawned
     # TODO: Number of buses is always the same, even if they don't have people they'll spawn
+    
     # Add public flows
     for flow in flows_template["public_flows"]:
         fid, route_edges, start, end, percentage = flow
@@ -123,7 +129,7 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template)
     tree = ET.ElementTree(root)
     tree.write(out_path, encoding="utf-8", xml_declaration=True)
 
-    print(f"✅ Flow file written: {os.path.abspath(out_path)}")
+    print(f"Flow file written: {os.path.abspath(out_path)}")
     return out_path
 
 
@@ -232,17 +238,19 @@ def runSim(n_simulations=3, days_per_sim=7, policy=None,
             if ret != 0: print(f"SUMO returned non-zero code {ret}. stderr:\n{err}")
             else: print(f"Simulation{sim_id}, day {day}: DONE.")
 
+            '''
             # Emissions .xml -> .csv pipeline
-            emissions_csv_tool_out = OUT_DIR / f"emissions_sim{sim_id}_day{day}_{policy.get('id')}.csv"
+            emissions_csv_tool_out = CSV_OUT_DIR / f"emissions_sim{sim_id}_day{day}_{policy.get('id')}.csv"
             if emissions_out.exists():
                 cmd = ["python", str(XML2CSV_PATH), str(emissions_out), "--output", str(emissions_csv_tool_out)]
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 if result.returncode == 0: print(f"Emissions CSV converted: {emissions_csv_tool_out}")
                 else: print(f"CONVERSION FAILED:\n{result.stderr}")
             else: print(f"EMISSIONS XML NOT FOUND: {emissions_out}")
+            '''
 
             # Tripinfo .xml -> .csv pipeline
-            tripinfo_csv_tool_out = OUT_DIR / f"tripinfo_sim{sim_id}_day{day}_{policy.get('id')}.csv"
+            tripinfo_csv_tool_out = CSV_OUT_DIR / f"tripinfo_sim{sim_id}_day{day}_{policy.get('id')}.csv"
             if tripinfo_out.exists():
                 cmd = ["python", str(XML2CSV_PATH), str(tripinfo_out), "--output", str(tripinfo_csv_tool_out)]
                 result = subprocess.run(cmd, capture_output=True, text=True)
@@ -252,4 +260,17 @@ def runSim(n_simulations=3, days_per_sim=7, policy=None,
 
 
     print("All simulations completed.")
-    print(f"Individual CSVs saved to: {OUT_DIR}")
+    print(f"Individual CSVs saved to: {CSV_OUT_DIR}")
+
+
+def csvCleaner(delete):
+
+
+    
+    
+    if delete == "y":
+        # sends all csvs to recycle bin (accidental delete protection)
+        for p in Path(CSV_OUT_DIR).iterdir():
+            if p.is_file(): send2trash(str(p))
+
+    return global_df

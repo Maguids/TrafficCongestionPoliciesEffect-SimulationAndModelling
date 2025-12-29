@@ -38,6 +38,7 @@ SUMO_NET_FILE = CWD+"\\automate_flow\\core\\"+"manhattan.net.xml"
 OUT_DIR = Path("sumo_runs")
 FLOWS_DIR = OUT_DIR / "flows"
 RAW_OUT_DIR = OUT_DIR / "raw_xml"
+CSV_OUT_DIR = OUT_DIR / "raw_csv"
 AGGREGATED_CSV = OUT_DIR / "aggregated_tripinfo_emissions.csv"
 SUMMARY_CSV = OUT_DIR / "summary_per_run.csv"
 for d in (OUT_DIR, FLOWS_DIR, RAW_OUT_DIR): d.mkdir(parents=True, exist_ok=True)
@@ -56,6 +57,8 @@ PUBLIC_VTYPE = "bus"
 
 # Simulation runtime per "day" (seconds) 
 SIM_RUNTIME = 24 * 3600  # 24h in seconds 
+
+POLICY_NAME = "baseline"
 
 if __name__ == "__main__":
     # TODO: replace edges with actual values after manually creating in netedit
@@ -85,3 +88,7 @@ if __name__ == "__main__":
 
     runSim(n_simulations=1 ,days_per_sim=7, policy=my_policy,
             num_agents_global=PEOPLE_GLOBAL,  flows_template=sumo_flows)
+    
+    delete = str(input("Do you wish to delete the simulation csv results? (y/n)"))
+    
+    csvCleaner(delete)
