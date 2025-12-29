@@ -11,12 +11,8 @@ import pandas as pd
 from send2trash import send2trash
 
 
-from automate_simulations import PRIVATE_VTYPE, PUBLIC_VTYPE, SUMO_BINARY
-from automate_simulations import PEOPLE_GLOBAL, FLOWS_DIR, RAW_OUT_DIR
-from automate_simulations import SUMO_NET_FILE, CSV_OUT_DIR, RAW_OUT_DIR, SIM_RUNTIME
 
-# CSV converter!
-XML2CSV_PATH = Path(r"D:\Rafa\SUMO\tools\xml\xml2csv.py")
+XML2CSV_PATH = Path("/opt/homebrew/opt/sumo/share/sumo/tools/xml/xml2csv.py")
 
                   
 # ----------------------------
@@ -57,7 +53,9 @@ def add_flow(fid, route_edges, start, end, percentage, num_agents, vtype, root):
 # TODO: Make this read the entire template and consider multiple
 # flow for each type, meaning not just 1 flow for private and 
 # another for public (which is what it's currently doing)!
-def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template):
+
+def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template,
+                  private_vtype="car", public_vtype="bus"):
     """
     Generate a SUMO-compatible routes file with <vType>, <route>, and <flow>.
     """
@@ -75,8 +73,7 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template)
             "xsi:noNamespaceSchemaLocation": "http://sumo.dlr.de/xsd/routes_file.xsd",
         },
     )
-
-    # Add vehicle types
+    
     ET.SubElement(
         root,
         "vType",
@@ -98,7 +95,7 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template)
         "vType",
         attrib={
             "id": "bus",
-            "length": "7.50",
+            "length": "1",
             "minGap": "2.50",
             "maxSpeed": "10",
             "emissionClass": "HBEFA3/PC_G_EU6",
@@ -113,17 +110,37 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template)
     # Add private flows
     for flow in flows_template["private_flows"]:
         fid, route_edges, start, end, percentage = flow
-        add_flow(fid, route_edges, start, end, percentage, num_private, PRIVATE_VTYPE, root)
+        add_flow(fid, route_edges, start, end, percentage, num_private, private_vtype, root)
 
     # TODO: Assuming a bus takes 80 people, num_public is actually num_public // 80
     # TODO: Add another parameter to add_flow to detect public transportation cases
     # and change the number of vehicles spawned
     # TODO: Number of buses is always the same, even if they don't have people they'll spawn
     
-    # Add public flows
+    # Add public flows (optional stops at bus stops)
     for flow in flows_template["public_flows"]:
-        fid, route_edges, start, end, percentage = flow
-        add_flow(fid, route_edges, start, end, percentage, num_public, PUBLIC_VTYPE, root)
+        # Allow an optional stops list as a 6th element: [(busStopId, duration), ...]
+        if len(flow) == 5:
+            fid, route_edges, start, end, percentage = flow
+            stops = []
+        else:
+            fid, route_edges, start, end, percentage, stops = flow
+
+        # create flow and attach stop children if any
+        add_flow(fid, route_edges, start, end, percentage, num_public, public_vtype, root)
+
+        if stops:
+            # find the flow element we just added (last one)
+            last_flow = root.findall("flow")[-1]
+            for stop_id, stop_duration in stops:
+                ET.SubElement(
+                    last_flow,
+                    "stop",
+                    attrib={
+                        "busStop": stop_id,
+                        "duration": str(stop_duration),
+                    },
+                )
 
     # Write to disk
     tree = ET.ElementTree(root)
@@ -137,13 +154,13 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template)
 #        Running SUMO
 # ----------------------------
 def runSUMO(flowfile, netfile, tripinfo_out,
-                  emissions_out, additional_sumo_args=None):
+                  emissions_out, sumo_binary="sumo", additional_files=None, additional_sumo_args=None):
     """
     Calls SUMO in batch mode, using a flowfile. Produces tripinfo and emissions xml outputs.
     Returns (returncode, stdout, stderr).
     """
     args = [
-        SUMO_BINARY,
+        sumo_binary,
         "-n", netfile,
         "-r", str(flowfile),  # flow file
         "--tripinfo-output", str(tripinfo_out),
@@ -152,6 +169,10 @@ def runSUMO(flowfile, netfile, tripinfo_out,
         "--no-warnings",
         # we can define --seed here for reproducibility
     ]
+    if additional_files:
+        # SUMO accepts a comma-separated list for multiple additional files
+        add_arg = ",".join(str(f) for f in additional_files)
+        args += ["--additional-files", add_arg]
     if additional_sumo_args: args += additional_sumo_args
     
     proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -208,7 +229,16 @@ def updatePolicy(policy, day):
 # ----------------------------
 
 def runSim(n_simulations=3, days_per_sim=7, policy=None,
-           num_agents_global=PEOPLE_GLOBAL, flows_template=None):
+           num_agents_global=200, flows_template=None,
+           flows_dir=Path("sumo_runs/flows"),
+           raw_out_dir=Path("sumo_runs/raw_xml"),
+           csv_out_dir=Path("sumo_runs/raw_csv"),
+           sumo_net_file=Path("automate_flow/core/manhattan.net.xml"),
+           sumo_binary="sumo",
+           additional_files=None,
+           private_vtype="car",
+           public_vtype="bus",
+           xml2csv_path=XML2CSV_PATH):
     """
         I'll be using this one until I can guarantee that all xmls are correctly created.
     """
@@ -226,15 +256,18 @@ def runSim(n_simulations=3, days_per_sim=7, policy=None,
             num_agents = num_agents_global
 
             # Generate a flows xml for this day
-            flowfile = FLOWS_DIR / f"flows_sim{sim_id}_day{day}_{policy.get('id')}.xml"
-            createFlowFile(flowfile, num_agents, acceptance, flows_template)
+            flowfile = flows_dir / f"flows_sim{sim_id}_day{day}_{policy.get('id')}.xml"
+            createFlowFile(flowfile, num_agents, acceptance, flows_template,
+                           private_vtype=private_vtype, public_vtype=public_vtype)
 
             # Output filenames
-            tripinfo_out = RAW_OUT_DIR / f"tripinfo_sim{sim_id}_day{day}_{policy.get('id')}.xml"
-            emissions_out = RAW_OUT_DIR / f"emissions_sim{sim_id}_day{day}_{policy.get('id')}.xml"
+            tripinfo_out = raw_out_dir / f"tripinfo_sim{sim_id}_day{day}_{policy.get('id')}.xml"
+            emissions_out = raw_out_dir / f"emissions_sim{sim_id}_day{day}_{policy.get('id')}.xml"
 
             # Run SUMO once for this day
-            ret, out, err = runSUMO(flowfile, SUMO_NET_FILE, tripinfo_out, emissions_out)
+            ret, out, err = runSUMO(flowfile, sumo_net_file, tripinfo_out, emissions_out,
+                                    sumo_binary=sumo_binary,
+                                    additional_files=additional_files)
             if ret != 0: print(f"SUMO returned non-zero code {ret}. stderr:\n{err}")
             else: print(f"Simulation{sim_id}, day {day}: DONE.")
 
@@ -250,9 +283,9 @@ def runSim(n_simulations=3, days_per_sim=7, policy=None,
             '''
 
             # Tripinfo .xml -> .csv pipeline
-            tripinfo_csv_tool_out = CSV_OUT_DIR / f"tripinfo_sim{sim_id}_day{day}_{policy.get('id')}.csv"
+            tripinfo_csv_tool_out = csv_out_dir / f"tripinfo_sim{sim_id}_day{day}_{policy.get('id')}.csv"
             if tripinfo_out.exists():
-                cmd = ["python", str(XML2CSV_PATH), str(tripinfo_out), "--output", str(tripinfo_csv_tool_out)]
+                cmd = ["python", str(xml2csv_path), str(tripinfo_out), "--output", str(tripinfo_csv_tool_out)]
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 if result.returncode == 0: print(f"tripinfo CSV converted: {tripinfo_csv_tool_out}")
                 else: print(f"CONVERSION FAILED:\n{result.stderr}")
@@ -260,17 +293,17 @@ def runSim(n_simulations=3, days_per_sim=7, policy=None,
 
 
     print("All simulations completed.")
-    print(f"Individual CSVs saved to: {CSV_OUT_DIR}")
+    print(f"Individual CSVs saved to: {csv_out_dir}")
 
 
-def csvCleaner(delete):
+def csvCleaner(delete, csv_out_dir=Path("sumo_runs/raw_csv")):
 
 
     
     
     if delete == "y":
         # sends all csvs to recycle bin (accidental delete protection)
-        for p in Path(CSV_OUT_DIR).iterdir():
+        for p in Path(csv_out_dir).iterdir():
             if p.is_file(): send2trash(str(p))
 
-    return global_df
+    return None
