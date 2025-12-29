@@ -21,7 +21,7 @@ ADDITIONAL_FILES = [(BASE / "core" / "manhattan.add.xml").resolve()]
 
 # Set SUMO binary (either 'sumo' or full path)
 # Can change to 'sumo-gui' for visualization
-SUMO_BINARY = os.environ.get("SUMO_BINARY", "sumo-gui")  
+SUMO_BINARY = os.environ.get("SUMO_BINARY", "sumo")  
 
 # --------------- Directories Setup --------------- #
 

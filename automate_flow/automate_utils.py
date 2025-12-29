@@ -49,11 +49,6 @@ def add_flow(fid, route_edges, start, end, percentage, num_agents, vtype, root):
         },
     )
 
-
-# TODO: Make this read the entire template and consider multiple
-# flow for each type, meaning not just 1 flow for private and 
-# another for public (which is what it's currently doing)!
-
 def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template,
                   private_vtype="car", public_vtype="bus"):
     """
@@ -95,7 +90,7 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template,
         "vType",
         attrib={
             "id": "bus",
-            "length": "1",
+            "length": "10",
             "minGap": "2.50",
             "maxSpeed": "10",
             "emissionClass": "HBEFA3/PC_G_EU6",
@@ -112,19 +107,14 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template,
         fid, route_edges, start, end, percentage = flow
         add_flow(fid, route_edges, start, end, percentage, num_private, private_vtype, root)
 
-    # TODO: Assuming a bus takes 80 people, num_public is actually num_public // 80
-    # TODO: Add another parameter to add_flow to detect public transportation cases
-    # and change the number of vehicles spawned
-    # TODO: Number of buses is always the same, even if they don't have people they'll spawn
+    
+    num_public = num_agents/80 # each bus can hold 80 people
     
     # Add public flows (optional stops at bus stops)
     for flow in flows_template["public_flows"]:
         # Allow an optional stops list as a 6th element: [(busStopId, duration), ...]
-        if len(flow) == 5:
-            fid, route_edges, start, end, percentage = flow
-            stops = []
-        else:
-            fid, route_edges, start, end, percentage, stops = flow
+
+        fid, route_edges, start, end, percentage, stops = flow
 
         # create flow and attach stop children if any
         add_flow(fid, route_edges, start, end, percentage, num_public, public_vtype, root)
