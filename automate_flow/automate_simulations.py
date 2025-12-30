@@ -117,6 +117,9 @@ if __name__ == "__main__":
         "days"          :  DAYS,
         "sumo_flows"    :  sumo_flows
     }
+
+    with open(PARAM_OUT_DIR+"/parameters.json", "w") as file: json.dump(parameter_save, file, indent=4)
+
     
     delete = str(input("Do you wish to delete the simulation csv results? (y/n)"))
     
