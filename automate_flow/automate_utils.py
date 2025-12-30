@@ -13,8 +13,8 @@ from send2trash import send2trash
 
 
 
-XML2CSV_PATH = Path("/opt/homebrew/opt/sumo/share/sumo/tools/xml/xml2csv.py")
-# XML2CSV_PATH = Path(r"D:\Rafa\SUMO\tools\xml\xml2csv.py")
+#XML2CSV_PATH = Path("/opt/homebrew/opt/sumo/share/sumo/tools/xml/xml2csv.py")
+XML2CSV_PATH = Path(r"D:\Rafa\SUMO\tools\xml\xml2csv.py")
 
                   
 # ----------------------------
@@ -353,26 +353,37 @@ def getClean(f):
     return df_clean   
 
 
-def csvCleaner(delete, policy_folder, policy_name, csv_out_dir=Path("sumo_runs/raw_csv")):
+def csvCleaner(delete, policy_folder, policy_name):
 
     # Gets every file name in policy_folder in order
+    policy_folder = Path(policy_folder)  # ensure Path
+
     filenames = sorted(
-    (policy_folder + f) for f in os.listdir(policy_folder)
-    if os.path.isfile(os.path.join(policy_folder, f))
+        policy_folder / f
+        for f in os.listdir(policy_folder)
+        if (policy_folder / f).is_file()
     )
 
     # Initializes the global dataframe
-    df = getClean(filenames[0])
+    df = getClean(str(filenames[0]))
     df_global = df.copy()
 
     # Iteratively applies every other csv and concatenates to the bottom of the previous 
-    for f in filenames[1:]: df_global = pd.concat([df_global, getClean(f)], ignore_index=True)
+    for f in filenames[1:]: df_global = pd.concat([df_global, getClean(str(f))], ignore_index=True)
     
-    df_global.to_csv("clean_csvs/" + policy_name + ".csv", index=False)
+    clean = Path("clean_csvs")
+    clean.mkdir(parents=True, exist_ok=True)
+    out_file = clean / f"{policy_name}.csv"
+    df_global.to_csv(out_file, index=False)
 
+    csv_out_dir=Path(f"sumo_runs/raw_csv/{policy_name}")
+    xml_out_dir=Path(f"sumo_runs/raw_xml")
     if delete == "y":
         # sends all csvs to recycle bin (accidental delete protection)
         for p in Path(csv_out_dir).iterdir():
             if p.is_file(): send2trash(str(p))
+
+        for p in xml_out_dir.glob("*.xml"):
+            if p.is_file(): p.unlink()
 
     return df_global

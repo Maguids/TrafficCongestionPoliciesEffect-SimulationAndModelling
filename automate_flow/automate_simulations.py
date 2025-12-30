@@ -118,10 +118,9 @@ if __name__ == "__main__":
         "sumo_flows"    :  sumo_flows
     }
 
-    with open(PARAM_OUT_DIR+"/parameters.json", "w") as file: json.dump(parameter_save, file, indent=4)
+    with open(f"{PARAM_OUT_DIR}/parameters.json", "w") as file: json.dump(parameter_save, file, indent=4)
 
     
     delete = str(input("Do you wish to delete the simulation csv results? (y/n)"))
     
-    csvCleaner(delete, POLICY_CSV_FOLDER, 
-               POLICY_NAME, csv_out_dir=CSV_OUT_DIR)
+    csvCleaner(delete, POLICY_CSV_FOLDER, POLICY_NAME)
