@@ -8,6 +8,7 @@
 # ------------------ Imports ---------------------- #
 
 import os
+import json
 from pathlib import Path
 
 # Fetches all utility and extra import data
@@ -29,10 +30,19 @@ OUT_DIR = Path("sumo_runs")
 FLOWS_DIR = OUT_DIR / "flows"
 RAW_OUT_DIR = OUT_DIR / "raw_xml"
 CSV_OUT_DIR = OUT_DIR / "raw_csv"
+PARAM_OUT_DIR = OUT_DIR / "policy_parameters"
 AGGREGATED_CSV = OUT_DIR / "aggregated_tripinfo_emissions.csv"
 SUMMARY_CSV = OUT_DIR / "summary_per_run.csv"
-for d in (OUT_DIR, FLOWS_DIR, RAW_OUT_DIR, CSV_OUT_DIR): d.mkdir(parents=True, exist_ok=True)
+for d in (OUT_DIR, FLOWS_DIR, RAW_OUT_DIR, CSV_OUT_DIR, PARAM_OUT_DIR): d.mkdir(parents=True, exist_ok=True)
 
+# Get policy name and create folder
+POLICY_NAME = str(input("What's the policy name?"))
+PARAM_OUT_DIR = OUT_DIR / "policy_parameters" / POLICY_NAME
+PARAM_OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Ensure policy folder exists
+POLICY_CSV_FOLDER = CSV_OUT_DIR / POLICY_NAME
+POLICY_CSV_FOLDER.mkdir(parents=True, exist_ok=True)
 
 # --------------- Global Variables --------------- #
 
@@ -48,14 +58,15 @@ PUBLIC_VTYPE = "bus"
 # Simulation runtime per "day" (seconds) 
 SIM_RUNTIME = 24 * 3600  # 24h in seconds 
 
-POLICY_NAME = "baseline"
+SIMULATIONS = 1
+DAYS = 7
+
 
 if __name__ == "__main__":
-    # TODO: replace edges with actual values after manually creating in netedit
     sumo_flows = {
     "private_flows": [
         # Private vehicle flow: cars using route "r_upper"
-        # ["A4B4", "B4C4", "C4D4", "D4E4", "E4E3" ,"E3E2" ,"E2D2"] might not work as list
+        # Disclaimer: edges might not work as list!
 
         # Percentages here are used to define the percentage of total people attributed to
         # each specific flow (in this case, private cars)
@@ -63,36 +74,51 @@ if __name__ == "__main__":
     ],
     "public_flows": [
         # Public transport flow: buses using route "bus"
+        
         # In this case, it also assigns a percentage of people to each flow of buses
         # However, that number is divided by 80 to accomodate and create new buses
-        # TODO: Buses always run, even if empty. Cars created must ALWAYS be the same.
-        # The percentage is only important to understande whether we can allocate more
+        
+        # The percentage is only important to understand whether we can allocate more
         # people to buses or if they're all full. 
-        # Add a stops list (busStop id, dwell time seconds) to make buses halt at the defined stops
+
+        # Add a stops list (busStop id "bs_n", dwell time seconds) to make buses halt at the defined stops
         ("flow_1", "A2A1 A1B1 B1C2 C2D2 D2E2 E2J1", 0, SIM_RUNTIME, 1.0,
          [("bs_0", 15), ("bs_1", 15), ("bs_2", 15), ("bs_3", 15)]),  # 100% of public flow
     ],
 }
 
     # Example policy: logistic adoption reaching 80% after a few days
-    my_policy = {"id": "policy_bus_subsidy", "type": "logistic", "L": 0.8, "k": 0.8, "x0": 3}
+    my_policy = {"id": POLICY_NAME, "type": "logistic", "L": 0.8, "k": 0.8, "x0": 3}
 
     runSim(
-        n_simulations=1,
-        days_per_sim=7,
+        n_simulations=SIMULATIONS,
+        days_per_sim=DAYS,
         policy=my_policy,
         num_agents_global=PEOPLE_GLOBAL,
         flows_template=sumo_flows,
         flows_dir=FLOWS_DIR,
         raw_out_dir=RAW_OUT_DIR,
-        csv_out_dir=CSV_OUT_DIR,
+        csv_out_dir=POLICY_CSV_FOLDER,
         sumo_net_file=SUMO_NET_FILE,
         sumo_binary=SUMO_BINARY,
         additional_files=ADDITIONAL_FILES,
         private_vtype=PRIVATE_VTYPE,
         public_vtype=PUBLIC_VTYPE,
     )
+
+    # Useful for comparisons and consistency
+    parameter_save = {
+        "policy_name"   :  POLICY_NAME,
+        "people_global" :  PEOPLE_GLOBAL,
+        "private_vtype" :  PRIVATE_VTYPE,
+        "public_vtype"  :  PUBLIC_VTYPE,
+        "sim_runtime"   :  SIM_RUNTIME,
+        "simulations"   :  SIMULATIONS,
+        "days"          :  DAYS,
+        "sumo_flows"    :  sumo_flows
+    }
     
     delete = str(input("Do you wish to delete the simulation csv results? (y/n)"))
     
-    csvCleaner(delete, csv_out_dir=CSV_OUT_DIR)
+    csvCleaner(delete, POLICY_CSV_FOLDER, 
+               POLICY_NAME, csv_out_dir=CSV_OUT_DIR)
