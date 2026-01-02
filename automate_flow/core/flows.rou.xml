@@ -6,16 +6,31 @@
     <vType id="car" length="4.50" minGap="2.50" maxSpeed="13.90" emissionClass="HBEFA3/PC_G_EU6" guiShape="passenger" color="red" accel="2.6" decel="4.5" sigma="0.5"/>
     <vType id="bus" length="13.50" minGap="2.50" maxSpeed="10.00" emissionClass="HBEFA3/PC_G_EU6" guiShape="bus" color="blue" accel="2.0" decel="4.5" sigma="0.5"/>
 
-    <!-- Flow 1: A2A3 -> E2D2, one vehicle every 6 seconds -->
-    <route id="r_upper" edges="A2A3 A3B3 B3C2 C2D2 D2E2 E2J1"/> 
-    <flow id="flow_0" type="car" begin="0" end="3600" period="6.0" route="r_upper"/>
+    <!-- Flow 0: A2A3 -> E2D2, one vehicle every 6 seconds -->
+    <route id="car_down" edges="A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1"/> 
+    <flow id="flow_0" type="car" begin="0" end="3600" period="6.0" route="car_down"/>
+
+ <!-- Flow 1: A2A3 -> E2D2, one vehicle every 6 seconds -->
+    <route id="car_upper" edges="A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1"/> 
+    <flow id="flow_1" type="car" begin="0" end="3600" period="6.0" route="car_upper"/>
 
     <!-- Flow 2: A2A1 -> D2E2, one bus every 60 seconds -->
-    <route id="bus" edges="A2A1 A1B1 B1C2 C2D2 D2E2 E2J1"/>
-    <flow id="flow_1" type="bus" begin="0" end="3600" period="60.0" route="bus">
+    <route id="bus_down" edges="A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1"/>
+    <flow id="flow_2" type="bus" begin="0" end="3600" period="60.0" route="bus_down">
+    <!--
         <stop busStop="bs_0" duration="15"/>
         <stop busStop="bs_1" duration="15"/>
+        <stop busStop="bs_3" duration="15"/>
+    -->
+    </flow>
+
+    <!-- Flow 3: A2A1 -> D2E2, one bus every 60 seconds -->
+    <route id="bus_upper" edges="A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1"/>
+    <flow id="flow_3" type="bus" begin="0" end="3600" period="60.0" route="bus_upper">
+    <!--
+        <stop busStop="bs_0" duration="15"/>
         <stop busStop="bs_2" duration="15"/>
         <stop busStop="bs_3" duration="15"/>
+    -->
     </flow>
 </routes>
