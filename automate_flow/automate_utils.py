@@ -7,12 +7,14 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from typing import Dict, List
 import pandas as pd 
-
+import os
+import re
 from send2trash import send2trash
 
 
 
-XML2CSV_PATH = Path("/opt/homebrew/opt/sumo/share/sumo/tools/xml/xml2csv.py")
+#XML2CSV_PATH = Path("/opt/homebrew/opt/sumo/share/sumo/tools/xml/xml2csv.py")
+XML2CSV_PATH = Path(r"D:\Rafa\SUMO\tools\xml\xml2csv.py")
 
                   
 # ----------------------------
@@ -287,15 +289,103 @@ def runSim(n_simulations=3, days_per_sim=7, policy=None,
     print("All simulations completed.")
     print(f"Individual CSVs saved to: {csv_out_dir}")
 
+# -------------------------------
+# Cleaning and Preprocssing csvs
+# -------------------------------
 
-def csvCleaner(delete, csv_out_dir=Path("sumo_runs/raw_csv")):
 
+def orderSpawn(df):
+    # Extract flow number and car number
+    df["flow_id"] = df["tripinfo_id"].str.extract(r"flow_(\d+)\.\d+").astype(int)
+    df["car_num"] = df["tripinfo_id"].str.split(".", n=1).str[1].astype(int)
 
+    # Sort by flow_id first, then by car_num
+    df = df.sort_values(by=["flow_id", "car_num"], ascending=[True, True]).drop(columns=["car_num"])
+
+    return df
+
+def getClean(f):
     
+    '''
+        New Dataframe:
+        - tripinfo_id : str
+        - tripinfo_vType : str
+        - day         : int
+        - sim         : int
+        - CO2_abs     : float
+        - departDelay : float
+        - waitingTime : float
+        - waitingCount: int
+        - timeLoss    : float
+    '''
     
+    # Read file
+    df = pd.read_csv(f, sep=";")
+
+    # Get day and simulation from file name
+    match = re.search(r"sim(\d+)_day(\d+)", f)
+    if match:
+        sim = int(match.group(1))
+        day = int(match.group(2))
+
+    # Order: flow -> car
+    df = orderSpawn(df)
+
+    # Start clean dataframe (some column names are simplified)
+    df_clean = pd.DataFrame()
+
+    # Increasing unique ID
+    df_clean["tripinfo_id"] = df["tripinfo_id"]
+    df_clean["tripinfo_vType"] = df["tripinfo_vType"]
+
+    # Increasing day and simulation
+    df_clean["day"] = day
+    df_clean["sim"] = sim 
+
+    # Total daily CO2 emission in mg per car
+    df_clean["CO2_abs"] = df["emissions_CO2_abs"]
+
+    # Total daily departure delays, waiting times,
+    # waiting counts and time losses
+    df_clean["departDelay"] = df["tripinfo_departDelay"]
+    df_clean["waitingTime"] = df["tripinfo_waitingTime"]
+    df_clean["waitingCount"] = df["tripinfo_waitingCount"]
+    df_clean["timeLoss"] = df["tripinfo_timeLoss"]
+
+    return df_clean   
+
+
+def csvCleaner(delete, policy_folder, policy_name):
+
+    # Gets every file name in policy_folder in order
+    policy_folder = Path(policy_folder)  # ensure Path
+
+    filenames = sorted(
+        policy_folder / f
+        for f in os.listdir(policy_folder)
+        if (policy_folder / f).is_file()
+    )
+
+    # Initializes the global dataframe
+    df = getClean(str(filenames[0]))
+    df_global = df.copy()
+
+    # Iteratively applies every other csv and concatenates to the bottom of the previous 
+    for f in filenames[1:]: df_global = pd.concat([df_global, getClean(str(f))], ignore_index=True)
+    
+    clean = Path("clean_csvs")
+    clean.mkdir(parents=True, exist_ok=True)
+    out_file = clean / f"{policy_name}.csv"
+    df_global.to_csv(out_file, index=False)
+
+    csv_out_dir=Path(f"sumo_runs/raw_csv/{policy_name}")
+    xml_out_dir=Path(f"sumo_runs/raw_xml")
     if delete == "y":
         # sends all csvs to recycle bin (accidental delete protection)
         for p in Path(csv_out_dir).iterdir():
             if p.is_file(): send2trash(str(p))
 
-    return None
+        for p in xml_out_dir.glob("*.xml"):
+            if p.is_file(): p.unlink()
+
+    return df_global
