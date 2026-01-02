@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-10-17 15:17:56 by Eclipse SUMO duarouter Version 1.24.0
+<duarouterConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
+
+    <input>
+        <net-file value="manhattan.net.xml"/>
+        <route-files value="manhattan.rou.xml"/>
+    </input>
+
+    <output>
+        <output-file value="routes.rou.xml"/>
+    </output>
+
+</duarouterConfiguration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vehicle id="t_0" depart="0.00">
+        <route edges="A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1"/>
+    </vehicle>
+    <vehicle id="t_1" depart="0.00">
+        <route edges="A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1"/>
+    </vehicle>
+</routes>

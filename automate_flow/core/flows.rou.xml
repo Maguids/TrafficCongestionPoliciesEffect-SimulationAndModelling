@@ -17,20 +17,20 @@
     <!-- Flow 2: A2A1 -> D2E2, one bus every 60 seconds -->
     <route id="bus_down" edges="A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1"/>
     <flow id="flow_2" type="bus" begin="0" end="3600" period="60.0" route="bus_down">
-    <!--
+
         <stop busStop="bs_0" duration="15"/>
         <stop busStop="bs_1" duration="15"/>
         <stop busStop="bs_3" duration="15"/>
-    -->
+    
     </flow>
 
     <!-- Flow 3: A2A1 -> D2E2, one bus every 60 seconds -->
     <route id="bus_upper" edges="A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1"/>
     <flow id="flow_3" type="bus" begin="0" end="3600" period="60.0" route="bus_upper">
-    <!--
+
         <stop busStop="bs_0" duration="15"/>
         <stop busStop="bs_2" duration="15"/>
         <stop busStop="bs_3" duration="15"/>
-    -->
+
     </flow>
 </routes>

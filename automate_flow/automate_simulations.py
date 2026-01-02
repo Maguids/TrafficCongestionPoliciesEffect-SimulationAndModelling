@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
         # Percentages here are used to define the percentage of total people attributed to
         # each specific flow (in this case, private cars)
-        ("flow_0", "A2A3 A3B3 B3C2 C2D2 D2E2 E2J1", 0, SIM_RUNTIME, 1.0),  # 100% of private flow
+        ("flow_0", "A2A3 A3B3 B3C2 C2D2 D2E2 E2J1", 0, SIM_RUNTIME, 0.50),  # 100% of private flow
     ],
     "public_flows": [
         # Public transport flow: buses using route "bus"
