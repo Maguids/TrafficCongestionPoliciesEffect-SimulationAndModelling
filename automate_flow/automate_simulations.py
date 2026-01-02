@@ -37,7 +37,7 @@ for d in (OUT_DIR, FLOWS_DIR, RAW_OUT_DIR, CSV_OUT_DIR): d.mkdir(parents=True, e
 # --------------- Global Variables --------------- #
 
 # Total number of people
-PEOPLE_GLOBAL = 1000  
+PEOPLE_GLOBAL = 10000 
 
 # Default vehicle types and edge IDs
 PRIVATE_VTYPE = "car"   
@@ -47,6 +47,8 @@ PUBLIC_VTYPE = "bus"
 
 # Simulation runtime per "day" (seconds) 
 SIM_RUNTIME = 24 * 3600  # 24h in seconds 
+
+
 
 POLICY_NAME = "baseline"
 

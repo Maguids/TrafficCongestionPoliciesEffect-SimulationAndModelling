@@ -107,9 +107,11 @@ def createFlowFile(out_path, num_agents, acceptance_rate_public, flows_template,
         fid, route_edges, start, end, percentage = flow
         add_flow(fid, route_edges, start, end, percentage, num_private, private_vtype, root)
 
-    
+
+
     num_public = num_agents/80 # each bus can hold 80 people
-    
+
+
     # Add public flows (optional stops at bus stops)
     for flow in flows_template["public_flows"]:
         # Allow an optional stops list as a 6th element: [(busStopId, duration), ...]
