@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<additional>
+  <busStop id="BS_L1_0" lane="A1B1_0" startPos="10" endPos="20" friendlyPos="true" />
+  <busStop id="BS_L1_1" lane="F2G1_0" startPos="10" endPos="20" friendlyPos="true" />
+  <busStop id="BS_L1_2" lane="H1I1_0" startPos="10" endPos="20" friendlyPos="true" />
+  <busStop id="BS_L2_0" lane="A1B1_0" startPos="10" endPos="20" friendlyPos="true" />
+  <busStop id="BS_L2_1" lane="D1E0_0" startPos="10" endPos="20" friendlyPos="true" />
+  <busStop id="BS_L2_2" lane="H1I1_0" startPos="10" endPos="20" friendlyPos="true" />
+  </additional>
