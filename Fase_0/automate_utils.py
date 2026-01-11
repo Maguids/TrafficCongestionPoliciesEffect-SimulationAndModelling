@@ -715,7 +715,7 @@ def getCleanPerson(f):
 
 
 
-def csvCleaner(policy_folder, policy_name):
+def csvCleaner(policy_folder, policy_name, clean):
     policy_folder = Path(policy_folder)
 
     trip_files = sorted(
@@ -745,7 +745,7 @@ def csvCleaner(policy_folder, policy_name):
 
     df_global = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
 
-    clean = Path("clean_csvs")
+    
     clean.mkdir(parents=True, exist_ok=True)
 
     out_file = clean / f"{policy_name}.csv"
