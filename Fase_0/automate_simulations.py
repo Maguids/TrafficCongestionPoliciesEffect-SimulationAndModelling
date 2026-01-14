@@ -181,15 +181,15 @@ for i in range(len(MAP_TYPE)):
 
         # --------------------- POLICIES
         logistic_policy = {"id": POLICY_NAME_FOLDER, "type": "logistic", "L": 0.9, "k": 0.3, "x0": 3}
-        utility_policy = {"id": POLICY_NAME_FOLDER, "type": "utility","base": 0.30,  "learning_rate": 0.35,        # inércia (0..1)
+        utility_policy = {"id": POLICY_NAME_FOLDER, "type": "utility", "base": 0.30,  "learning_rate": 0.35,        # inércia (0..1)
         "weights": {"time": -0.002, "cost": -0.30, "pollution": -0.000001}, "car_cost_per_km": 0.20, "bus_fare": 1.50}
         discrete_policy = {"id": POLICY_NAME_FOLDER, "type": "None", "base": 0.3}
 
         # --------------------- SIMULATION CONFIGURATIONS
-        people = PEOPLE_GLOBAL[i]
+        people = PEOPLE_GLOBAL[j]
         SIM_RUNTIME = 24 * 3600
         NUMBER_SIMULATIONS = 1
-        NUMBER_OF_DAYS_PER_SIMULATION = 1
+        NUMBER_OF_DAYS_PER_SIMULATION = 14
         MY_POLICY = logistic_policy
         PUBLIC_PERCENTAGE = 0.3     # percentagem de pessoas que começam no transporte público
         PRIVATE_VTYPE = "car"   

@@ -935,21 +935,11 @@ def runSim(
     for sim_id in range(1, n_simulations + 1):
         print(f"Starting simulation {sim_id}/{n_simulations} (policy={policy.get('id')})")
 
-        acceptance_state = float(policy.get("base", 0.1))
+        acceptance = float(policy.get("base", 0.1))
         acceptance_log: List[Dict[str, Any]] = []
 
         for day in range(1, days_per_sim + 1):
-
-            # Decide acceptance for this day
-            if policy.get("type") in ("linear", "logistic"):
-                acceptance = updatePolicy(policy, day - 1)
-            elif policy.get("type") == "utility":
-                acceptance = acceptance_state   # isto dá-no o a acceptance no dia 1, que depois vai mudando
-            else:
-                acceptance = float(policy.get("base", 0.1))
-
             print(f"  Simulation {sim_id} Day {day}: acceptance_rate_public = {acceptance:.3f}")
-
 
             # Generate a flows xml for this day (car flows + persons)
             flowfile = flows_dir / f"flows_sim{sim_id}_day{day}_{policy_id}.rou.xml"
@@ -964,18 +954,6 @@ def runSim(
                 private_vtype=private_vtype,
                 seed=seed_base + sim_id * 1000 + day,
             )
-
-            """
-            # Generate a flows xml for this day
-            flowfile = flows_dir / f"flows_sim{sim_id}_day{day}_{policy.get('id')}.xml"
-            createFlowFile(flowfile, 
-                           num_agents_global, 
-                           acceptance, 
-                           flows_template,
-                           private_vtype=private_vtype, 
-                           public_vtype=public_vtype)
-            """
-
 
             # Output filenames
             tripinfo_out   = raw_out_dir / f"tripinfo_sim{sim_id}_day{day}_{policy_id}.xml"
@@ -1024,23 +1002,34 @@ def runSim(
             else:
                 print(f"personinfo XML NOT FOUND: {personinfo_out}")
 
-
             df_veh = getClean(str(tripinfo_csv_out))
             df_pax = getCleanPerson(str(personinfo_csv))
             df_day_clean = pd.concat([df_veh, df_pax], ignore_index=True)
             kpis_day = summarize_daily_kpis(df_day_clean, policy_id=policy_id)
 
-            # Utility update: compute KPIs for this day and update acceptance_state for next day
-            if policy.get("type") == "utility":
-                try:
-                    # Guardar KPIs por dia (append)
-                    kpi_path = csv_out_dir / f"daily_kpis_{policy_id}_sim{sim_id}.csv"
-                    write_header = not kpi_path.exists()
-                    kpis_day.to_csv(kpi_path, mode="a", header=write_header, index=False)
+            # Guardar KPIs por dia (append)
+            kpi_path = csv_out_dir / f"daily_kpis_{policy_id}_sim{sim_id}.csv"
+            write_header = not kpi_path.exists()
+            kpis_day.to_csv(kpi_path, mode="a", header=write_header, index=False)
+            
+            # Decide acceptance for this day
+            if policy.get("type") in ("linear", "logistic"):
+                next_a = updatePolicy(policy, day - 1)
 
+                acceptance_log.append({
+                        "sim": sim_id,
+                        "day": day,
+                        "acceptance_used": float(acceptance),
+                        "acceptance_next": float(next_a),
+                    })
+
+                acceptance = float(next_a)
+                print(f"    public transport update -> acceptance_next={acceptance:.3f}")
+            elif policy.get("type") == "utility":
+                try:
                     next_a, pref = update_acceptance_from_kpis(
                         kpis_day,
-                        acceptance_state,
+                        acceptance,
                         policy,
                         private_mode=private_vtype,  # "car"
                         bus_mode=public_vtype,       # "bus"
@@ -1055,11 +1044,14 @@ def runSim(
                         "acceptance_next": float(next_a),
                     })
 
-                    acceptance_state = float(next_a)
-                    print(f"    utility update -> pref_public={pref} acceptance_next={acceptance_state:.3f}")
+                    acceptance = float(next_a)
+                    print(f"    utility update -> pref_public={pref} acceptance_next={acceptance:.3f}")
 
                 except Exception as e:
                     print(f"    utility update failed (keeping acceptance): {e}")
+            else:
+                acceptance = float(policy.get("base", 0.1))
+                
 
         # Save acceptance log (if utility)
         if acceptance_log:
