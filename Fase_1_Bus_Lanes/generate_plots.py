@@ -720,7 +720,7 @@ if __name__ == "__main__":
     #
     fase_dir = ""   # Para quem rodar dentro do vs usar -> "Fase_0"
     map_names = ["baseline", "grid"]
-    variants = ["", "less_buses", "more_buses"]
+    variants = ["", "bus_lines", "bus_stops"]
     appendices = ["1000", "10000", "25000"]
 
     run(fase_dir=fase_dir, map_names=map_names, appendices=appendices, variants=variants)
