@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+  <vType id="bus" vClass="bus" length="10" maxSpeed="10" minGap="2.5" accel="2.6" decel="4.5" sigma="0.5" emissionClass="HBEFA3/PC_G_EU6" guiShape="bus" color="blue" personCapacity="133" />
+  <route id="r_L1" edges="A2B2 B2C2 C2D2 D2E2" />
+  <flow id="bus_L1" type="bus" route="r_L1" begin="0" end="86400" period="300" line="L1" departLane="0">
+    <stop busStop="BS_L1_0" duration="15" />
+    <stop busStop="BS_L1_1" duration="15" />
+    <stop busStop="BS_L1_2" duration="15" />
+    </flow>
+  <route id="r_L2" edges="C0C1 C1C2 C2C3 C3C4" />
+  <flow id="bus_L2" type="bus" route="r_L2" begin="0" end="86400" period="300" line="L2" departLane="0">
+    <stop busStop="BS_L2_0" duration="15" />
+    <stop busStop="BS_L2_1" duration="15" />
+    <stop busStop="BS_L2_2" duration="15" />
+    </flow>
+  <route id="r_L3" edges="A0B0 B0C0 C0D0 D0E0 E0E1 E1E2 E2E3 E3E4 E4D4 D4C4 C4B4 B4A4 A4A3 A3A2 A2A1 A1A0" />
+  <flow id="bus_L3" type="bus" route="r_L3" begin="0" end="86400" period="300" line="L3" departLane="0">
+    <stop busStop="BS_L3_0" duration="15" />
+    <stop busStop="BS_L3_1" duration="15" />
+    <stop busStop="BS_L3_2" duration="15" />
+    <stop busStop="BS_L3_3" duration="15" />
+    </flow>
+  </routes>
