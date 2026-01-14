@@ -54,32 +54,32 @@ FLOWS_TEMPLATES_BASELINE = {
     (
         "flow_0",
         [
-            ("A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1", 0.3),
-            ("A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1", 0.7),
+            ("A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1", 0.5),
+            ("A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1", 0.5),
         ],
         0, 6*3600, 0.10
     ),
     (
         "flow_1",
         [
-            ("A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1", 0.4),
-            ("A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1", 0.6),
+            ("A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1", 0.5),
+            ("A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1", 0.5),
         ],
         6*3600, 9*3600, 0.50
     ),
     (
         "flow_2",
         [
-            ("A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1", 0.2),
-            ("A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1", 0.8),
+            ("A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1", 0.5),
+            ("A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1", 0.5),
         ],
         9*3600, 16*3600, 0.30
     ),
     (
         "flow_3",
         [
-            ("A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1", 0.25),
-            ("A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1", 0.75),
+            ("A1B1 B1C1 C1D1 D1E0 E0F0 F0G1 G1H1 H1I1 I1J1", 0.5),
+            ("A1B1 B1C1 C1D1 D1E2 E2F2 F2G1 G1H1 H1I1 I1J1", 0.5),
         ],
         16*3600, 24*3600, 0.10
     ),
