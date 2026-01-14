@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='utf-8'?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+  <vType id="car" length="4.50" minGap="2.50" maxSpeed="13.90" emissionClass="HBEFA3/PC_G_EU6" guiShape="passenger" color="red" accel="2.6" decel="4.5" sigma="0.5" />
+  <routeDistribution id="rd_flow_0">
+    <route edges="A2J2 J2B2 B2C2 C2J0 J0D2 D2J3 J3E2" frequency="0.25" />
+    <route edges="C0J9 J9C1 C1C2 C2J1 J1C3 C3B3 B3A3" frequency="0.25" />
+    <route edges="A0A1 A1B1 B1B2 B2C2 C2J0 J0D2 D2D3 D3D4" frequency="0.25" />
+    <route edges="C4B4 B4A4 A4J6 J6A3 A3B3 B3B2 B2B1 B1B0 B0A0" frequency="0.25" />
+  </routeDistribution>
+  <flow id="flow_0" type="car" begin="0" end="21600" period="30.86" route="rd_flow_0" />
+  <routeDistribution id="rd_flow_1">
+    <route edges="A2J2 J2B2 B2C2 C2J0 J0D2 D2J3 J3E2" frequency="0.25" />
+    <route edges="C0J9 J9C1 C1C2 C2J1 J1C3 C3B3 B3A3" frequency="0.25" />
+    <route edges="A0A1 A1B1 B1B2 B2C2 C2J0 J0D2 D2D3 D3D4" frequency="0.25" />
+    <route edges="C4B4 B4A4 A4J6 J6A3 A3B3 B3B2 B2B1 B1B0 B0A0" frequency="0.25" />
+  </routeDistribution>
+  <flow id="flow_1" type="car" begin="21600" end="32400" period="3.09" route="rd_flow_1" />
+  <routeDistribution id="rd_flow_2">
+    <route edges="A2J2 J2B2 B2C2 C2J0 J0D2 D2J3 J3E2" frequency="0.25" />
+    <route edges="C0J9 J9C1 C1C2 C2J1 J1C3 C3B3 B3A3" frequency="0.25" />
+    <route edges="A0A1 A1B1 B1B2 B2C2 C2J0 J0D2 D2D3 D3D4" frequency="0.25" />
+    <route edges="C4B4 B4A4 A4J6 J6A3 A3B3 B3B2 B2B1 B1B0 B0A0" frequency="0.25" />
+  </routeDistribution>
+  <flow id="flow_2" type="car" begin="32400" end="57600" period="12.00" route="rd_flow_2" />
+  <routeDistribution id="rd_flow_3">
+    <route edges="A2J2 J2B2 B2C2 C2J0 J0D2 D2J3 J3E2" frequency="0.25" />
+    <route edges="C0J9 J9C1 C1C2 C2J1 J1C3 C3B3 B3A3" frequency="0.25" />
+    <route edges="A0A1 A1B1 B1B2 B2C2 C2J0 J0D2 D2D3 D3D4" frequency="0.25" />
+    <route edges="C4B4 B4A4 A4J6 J6A3 A3B3 B3B2 B2B1 B1B0 B0A0" frequency="0.25" />
+  </routeDistribution>
+  <flow id="flow_3" type="car" begin="57600" end="86400" period="41.14" route="rd_flow_3" />
+  <personFlow id="pf_0" begin="0" end="21600" period="251.16" departPos="15.00">
+    <ride from="A2J2" busStop="BS_L1_1" lines="L1" />
+  </personFlow>
+  <personFlow id="pf_1" begin="0" end="21600" period="251.16" departPos="15.00">
+    <ride from="C2J0" busStop="BS_L1_2" lines="L1" />
+  </personFlow>
+  <personFlow id="pf_2" begin="0" end="21600" period="251.16" departPos="15.00">
+    <ride from="C0J9" busStop="BS_L2_1" lines="L2" />
+  </personFlow>
+  <personFlow id="pf_3" begin="0" end="21600" period="251.16" departPos="15.00">
+    <ride from="C2J1" busStop="BS_L2_2" lines="L2" />
+  </personFlow>
+  <personFlow id="pf_4" begin="0" end="21600" period="251.16" departPos="15.00">
+    <ride from="A0J8" busStop="BS_L3_1" lines="L3" />
+  </personFlow>
+  <personFlow id="pf_5" begin="0" end="21600" period="254.12" departPos="15.00">
+    <ride from="E0J7" busStop="BS_L3_2" lines="L3" />
+  </personFlow>
+  <personFlow id="pf_6" begin="0" end="21600" period="254.12" departPos="15.00">
+    <ride from="E4J5" busStop="BS_L3_3" lines="L3" />
+  </personFlow>
+  <personFlow id="pf_7" begin="21600" end="72000" period="168.00" departPos="15.00">
+    <ride from="A2J2" busStop="BS_L1_1" lines="L1" />
+  </personFlow>
+  <personFlow id="pf_8" begin="21600" end="72000" period="168.00" departPos="15.00">
+    <ride from="C2J0" busStop="BS_L1_2" lines="L1" />
+  </personFlow>
+  <personFlow id="pf_9" begin="21600" end="72000" period="168.00" departPos="15.00">
+    <ride from="C0J9" busStop="BS_L2_1" lines="L2" />
+  </personFlow>
+  <personFlow id="pf_10" begin="21600" end="72000" period="168.00" departPos="15.00">
+    <ride from="C2J1" busStop="BS_L2_2" lines="L2" />
+  </personFlow>
+  <personFlow id="pf_11" begin="21600" end="72000" period="168.00" departPos="15.00">
+    <ride from="A0J8" busStop="BS_L3_1" lines="L3" />
+  </personFlow>
+  <personFlow id="pf_12" begin="21600" end="72000" period="168.00" departPos="15.00">
+    <ride from="E0J7" busStop="BS_L3_2" lines="L3" />
+  </personFlow>
+  <personFlow id="pf_13" begin="21600" end="72000" period="168.00" departPos="15.00">
+    <ride from="E4J5" busStop="BS_L3_3" lines="L3" />
+  </personFlow>
+  <personFlow id="pf_14" begin="72000" end="86400" period="334.88" departPos="15.00">
+    <ride from="A2J2" busStop="BS_L1_1" lines="L1" />
+  </personFlow>
+  <personFlow id="pf_15" begin="72000" end="86400" period="334.88" departPos="15.00">
+    <ride from="C2J0" busStop="BS_L1_2" lines="L1" />
+  </personFlow>
+  <personFlow id="pf_16" begin="72000" end="86400" period="334.88" departPos="15.00">
+    <ride from="C0J9" busStop="BS_L2_1" lines="L2" />
+  </personFlow>
+  <personFlow id="pf_17" begin="72000" end="86400" period="334.88" departPos="15.00">
+    <ride from="C2J1" busStop="BS_L2_2" lines="L2" />
+  </personFlow>
+  <personFlow id="pf_18" begin="72000" end="86400" period="342.86" departPos="15.00">
+    <ride from="A0J8" busStop="BS_L3_1" lines="L3" />
+  </personFlow>
+  <personFlow id="pf_19" begin="72000" end="86400" period="334.88" departPos="15.00">
+    <ride from="E0J7" busStop="BS_L3_2" lines="L3" />
+  </personFlow>
+  <personFlow id="pf_20" begin="72000" end="86400" period="334.88" departPos="15.00">
+    <ride from="E4J5" busStop="BS_L3_3" lines="L3" />
+  </personFlow>
+</routes>

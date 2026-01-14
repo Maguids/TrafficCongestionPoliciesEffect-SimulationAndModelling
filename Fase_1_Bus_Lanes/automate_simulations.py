@@ -15,7 +15,7 @@ The goal of this code is to automate the somulations. It allows to:
 
 # VARIABLES TO CHANGE/ADAPT
 MAP_TYPE = ["baseline", "grid"]
-POLICY_TYPE = ["more_buses", "less_buses"]
+POLICY_TYPE = ["bus_lines", "bus_stops"]
 PEOPLE_GLOBAL = [1000, 10000, 25000]
 # if run inside VS Code add to CSV_CLEANER_FOLDER and OUT_DIR "Fase_0", so it would be like "Fase_0\_clean_csvs_"
 CSV_CLEAN_FOLDER = Path("_clean_csvs_")
@@ -45,6 +45,21 @@ BUSSTOP_DEFS_GRID = {
     "BS_L3_1": {"lane": "E0E1_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
     "BS_L3_2": {"lane": "E4D4_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
     "BS_L3_3": {"lane": "A4A3_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
+}
+
+BUSSTOP_DEFS_GRID_BS = {
+    "BS_L1_0": {"lane": "A2J2_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
+    "BS_L1_1": {"lane": "C2J0_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
+    "BS_L1_2": {"lane": "D2J3_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
+
+    "BS_L2_0": {"lane": "C0J9_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
+    "BS_L2_1": {"lane": "C2J1_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
+    "BS_L2_2": {"lane": "C3J4_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
+
+    "BS_L3_0": {"lane": "A0J8_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
+    "BS_L3_1": {"lane": "E0J7_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
+    "BS_L3_2": {"lane": "E4J5_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
+    "BS_L3_3": {"lane": "A4J6_0", "startPos": 10, "endPos": 20, "friendlyPos": "true"},
 }
 
 # Private routes with rush windows (car) - BASELINE
@@ -137,6 +152,54 @@ FLOWS_TEMPLATES_GRID = {
     ]
 }
 
+FLOWS_TEMPLATES_GRID_BS = {
+    "private_flows": [
+    # Cada tuplo: (flow_id, route_edges_or_distribution, start, end, percentage)
+    # Aqui, route_edges_or_distribution é uma LISTA de (edges, prob) -> cria <routeDistribution>
+    (
+        "flow_0",
+        [
+            ("A2J2 J2B2 B2C2 C2J0 J0D2 D2J3 J3E2", 0.25),
+            ("C0J9 J9C1 C1C2 C2J1 J1C3 C3B3 B3A3",0.25),
+            ("A0A1 A1B1 B1B2 B2C2 C2J0 J0D2 D2D3 D3D4",0.25),
+            ("C4B4 B4A4 A4J6 J6A3 A3B3 B3B2 B2B1 B1B0 B0A0",0.25)
+        ],
+        0, 6*3600, 0.10
+    ),
+    (
+        "flow_1",
+        [
+            ("A2J2 J2B2 B2C2 C2J0 J0D2 D2J3 J3E2", 0.25),
+            ("C0J9 J9C1 C1C2 C2J1 J1C3 C3B3 B3A3",0.25),
+            ("A0A1 A1B1 B1B2 B2C2 C2J0 J0D2 D2D3 D3D4",0.25),
+            ("C4B4 B4A4 A4J6 J6A3 A3B3 B3B2 B2B1 B1B0 B0A0",0.25)
+        ],
+        6*3600, 9*3600, 0.50
+    ),
+    (
+        "flow_2",
+        [
+            ("A2J2 J2B2 B2C2 C2J0 J0D2 D2J3 J3E2", 0.25),
+            ("C0J9 J9C1 C1C2 C2J1 J1C3 C3B3 B3A3",0.25),
+            ("A0A1 A1B1 B1B2 B2C2 C2J0 J0D2 D2D3 D3D4",0.25),
+            ("C4B4 B4A4 A4J6 J6A3 A3B3 B3B2 B2B1 B1B0 B0A0",0.25)
+        ],
+        9*3600, 16*3600, 0.30
+    ),
+    (
+        "flow_3",
+        [
+            ("A2J2 J2B2 B2C2 C2J0 J0D2 D2J3 J3E2", 0.25),
+            ("C0J9 J9C1 C1C2 C2J1 J1C3 C3B3 B3A3",0.25),
+            ("A0A1 A1B1 B1B2 B2C2 C2J0 J0D2 D2D3 D3D4",0.25),
+            ("C4B4 B4A4 A4J6 J6A3 A3B3 B3B2 B2B1 B1B0 B0A0",0.25)
+        ],
+        16*3600, 24*3600, 0.10
+    ),
+
+    ]
+}
+
 
 # --- Padrões PT (spawn no from_stop e ride até to_stop)
 CIVILLIAN_RIDES_BASELINE = [
@@ -210,8 +273,12 @@ for i in range(len(MAP_TYPE)):
                 flows = FLOWS_TEMPLATES_BASELINE
                 civillian_flows = CIVILLIAN_RIDES_BASELINE
             else:
-                bus_stops = BUSSTOP_DEFS_GRID
-                flows = FLOWS_TEMPLATES_GRID
+                if POLICY_TYPE[k] == "bus_lines":
+                    bus_stops = BUSSTOP_DEFS_GRID
+                    flows = FLOWS_TEMPLATES_GRID
+                else:
+                     bus_stops = BUSSTOP_DEFS_GRID_BS
+                     flows = FLOWS_TEMPLATES_GRID_BS
                 civillian_flows = CIVILLIAN_RIDES_GRID
 
 
