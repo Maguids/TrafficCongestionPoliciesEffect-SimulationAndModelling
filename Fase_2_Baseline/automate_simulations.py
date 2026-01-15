@@ -14,9 +14,9 @@ The goal of this code is to automate the somulations. It allows to:
 """
 
 # VARIABLES TO CHANGE/ADAPT
-MAP_TYPE = ["baseline", "grid"]
-POLICY_TYPE = ["UserPreference_Baseline", "UserPreference_Time", "UserPreference_Cost", "UserPreference_CO2 "]
-PEOPLE_GLOBAL = [10000]
+MAP_TYPE = ["grid"]
+POLICY_TYPE = ["UserPreference_Baseline", "UserPreference_Time", "UserPreference_Cost", "UserPreference_CO2"]
+PEOPLE_GLOBAL = [25000]
 # if run inside VS Code add to CSV_CLEANER_FOLDER and OUT_DIR "Fase_0", so it would be like "Fase_0\_clean_csvs_"
 CSV_CLEAN_FOLDER = Path("_clean_csvs_")
 OUT_DIR = Path("_sumo_runs_")
@@ -165,7 +165,7 @@ for i in range(len(MAP_TYPE)):
             # Variable that has the name of the folder that has the results. Something like baseline_1000 or grid_25000
             POLICY_NAME_FOLDER = f"{MAP_TYPE[i]}_{POLICY_TYPE[k]}_{PEOPLE_GLOBAL[j]}"
             # Name of the folder that has the maps to use (folder with net, routes, etc)
-            SCENARIO_FOLDER = f"{MAP_TYPE[i]}_map_{POLICY_TYPE[k]}"
+            SCENARIO_FOLDER = f"{MAP_TYPE[i]}_map"
             SUMO_NET_FILE = (BASE / SCENARIO_FOLDER / "map.net.xml").resolve()
             BUS_ROUTES = (BASE / SCENARIO_FOLDER / "bus_routes.rou.xml").resolve()
             BUS_STOPS = (BASE / SCENARIO_FOLDER / "bus_stops.add.xml").resolve()
