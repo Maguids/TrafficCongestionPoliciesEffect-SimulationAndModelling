@@ -837,8 +837,8 @@ def update_acceptance_from_kpis(
         return next_a, None
 
     # TEMPO: carro vs passageiro PT
-    time_private = float(car.get("mean_duration", 0.0))
-    time_public  = float(pax.get("mean_duration", 0.0))
+    time_private = float(car.get("mean_effectiveTime", car.get("mean_duration", 0.0)))
+    time_public  = float(pax.get("mean_effectiveTime", pax.get("mean_duration", 0.0)))
 
     # DISTÂNCIA/CUSTO: usa mean_routeLength in kilometers;
     dist_private_km = float(car.get("mean_routeLength", 0.0)) / 1000
