@@ -816,11 +816,10 @@ def update_acceptance_from_kpis(
     min_a = float(policy.get("min_acceptance", 0.0))
     max_a = float(policy.get("max_acceptance", 1.0))
 
-    weights = policy.get("weights", {"time": -0.002, "cost": -0.30, "pollution": -0.000001})
+    weights = policy.get("weights", {"time": -0.002, "cost": -0.30, "pollution": -0.000000001})
 
-    car_cost_per_km = float(policy.get("car_cost_per_km", 0.20))
-    bus_fare = float(policy.get("bus_fare", 1.50))
-    bus_cost_per_km = float(policy.get("bus_cost_per_km", 0.0))
+    car_cost_per_km = float(policy.get("car_cost_per_km", 0.40))
+    bus_fare = float(policy.get("bus_fare", 0.10))
 
     def pick(entity: str, mode: str):
         r = kpis_day[(kpis_day["entity"] == entity) & (kpis_day["mode"] == mode)]
@@ -838,18 +837,14 @@ def update_acceptance_from_kpis(
         return next_a, None
 
     # TEMPO: carro vs passageiro PT
-    time_private = float(car.get("mean_effectiveTime", car.get("mean_duration", 0.0)))
-    time_public  = float(pax.get("mean_effectiveTime", pax.get("mean_duration", 0.0)))
+    time_private = float(car.get("mean_duration", 0.0))
+    time_public  = float(pax.get("mean_duration", 0.0))
 
-    # DISTÂNCIA/CUSTO: carro usa routeLength; PT pode usar distância média do bus (se existir)
-    dist_private_km = float(car.get("mean_routeLength", 0.0)) / float(car.get("n"))
+    # DISTÂNCIA/CUSTO: usa mean_routeLength in kilometers;
+    dist_private_km = float(car.get("mean_routeLength", 0.0)) / 1000
     cost_private = car_cost_per_km * dist_private_km
 
-    if busveh is not None:
-        dist_public_km = float(busveh.get("mean_routeLength", 0.0)) / float(busveh.get("n"))
-    else:
-        dist_public_km = 0.0
-    cost_public = bus_fare + bus_cost_per_km * dist_public_km
+    cost_public = bus_fare
 
     # POLUIÇÃO: carro = por veículo; PT = CO2_total_bus / nº passageiros (se tiver buses)
     pol_private = float(car.get("sum_CO2_abs", 0.0))
