@@ -621,24 +621,47 @@ def build_scenarios(
     runs_dir: str,
     map_names: List[str],
     appendices: List[str],
-    variants_1: List[str],
-    variants_2: List[str],
+    variants_new: List[str],
+    variants: List[str],
 ) -> List[Scenario]:
     """Build list of scenario folders that exist.
 
-    Folder pattern:
-      - base: {map}_{appendix}           when variant == "" or "base"
-      - variant: {map}_{variant}_{appendix} otherwise
+    Folder pattern (ordem):
+      map_name + variant_new + variant_old + appendix
+
+    Exemplos:
+      - {map}_{appendix}                                  (quando ambas são base)
+      - {map}_{variant_new}_{appendix}                    (quando variant_old é base)
+      - {map}_{variant_old}_{appendix}                    (quando variant_new é base)
+      - {map}_{variant_new}_{variant_old}_{appendix}      (caso geral)
+
+    Nota: para evitar duplicados, se variants já contiver variantes_new, elas são removidas de variants.
     """
     scenarios: List[Scenario] = []
 
+    def norm(v) -> str:
+        if v is None:
+            return "base"
+        v = str(v).strip()
+        return "base" if v in ("", "base") else v
+
+    variants_new_norm = [norm(v) for v in variants_new]
+    variants_old_norm = [norm(v) for v in variants if norm(v) not in set(variants_new_norm)]
+
     for m in map_names:
         for a in appendices:
-            for v in variants_1:
-                for v2 in variants_2:
-                    folder = f"{m}_{v}_{v2}_{a}"
+            for vnew in variants_new_norm:
+                for vold in variants_old_norm:
+                    parts = [m]
+                    if vnew != "base":
+                        parts.append(vnew)
+                    if vold != "base":
+                        parts.append(vold)
+                    parts.append(str(a))
 
+                    folder = "_".join(parts)
                     path = os.path.join(runs_dir, folder)
+
                     if os.path.isdir(path):
                         scenarios.append(Scenario(map_name=m, appendix=str(a), folder_name=folder, path=path))
                     else:
@@ -652,8 +675,8 @@ def run(
     fase_dir: str,
     map_names: List[str],
     appendices: List[str],
-    variants_1: List[str],
-    variants_2: List[str],
+    variants_new: List[str],
+    variants: List[str],
     runs_folder_name: str = "_sumo_runs_",
     plots_folder_name: str = "plots",
 ) -> None:
@@ -664,43 +687,57 @@ def run(
     plots_dir = os.path.join(fase_dir, plots_folder_name)
     ensure_dir(plots_dir)
 
-    scenarios = build_scenarios(runs_dir, map_names, appendices, variants_1, variants_2)
+    scenarios = build_scenarios(runs_dir, map_names, appendices, variants_new, variants)
 
     # Individuais
     for s in scenarios:
         out_dir = os.path.join(plots_dir, s.folder_name)
         print(f"[INFO] Individuais: {s.folder_name} -> {out_dir}")
         make_individual_plots(s, out_dir)
-
-    # Overall (por map + appendix): compara variantes
+    # Overall (agrupa por UserPreference_* + appendix): compara (map + variant_new)
+    # Ex.: para CO2, junta todos os cenários que contenham UserPreference_CO2 e compara entre eles
     overall_root = os.path.join(plots_dir, "overall")
     ensure_dir(overall_root)
 
-    for m in map_names:
-        for a in appendices:
+    def norm(v) -> str:
+        if v is None:
+            return "base"
+        v = str(v).strip()
+        return "base" if v in ("", "base") else v
+
+    variants_new_norm = [norm(v) for v in variants_new]
+    variants_old_norm = [norm(v) for v in variants if norm(v) not in set(variants_new_norm)]
+
+    for a in appendices:
+        for vold in variants_old_norm:
             group: List[Scenario] = []
 
-            for v in variants_1:
-                for v_2 in variants_2:
-                    folder = f"{m}_{v}_{v_2}_{a}"
-                    label = v_2
+            for m in map_names:
+                for vnew in variants_new_norm:
+                    parts = [m]
+                    if vnew != "base":
+                        parts.append(vnew)
+                    if vold != "base":
+                        parts.append(vold)
+                    parts.append(str(a))
 
+                    folder = "_".join(parts)
                     found = next((s for s in scenarios if s.folder_name == folder), None)
                     if found is None:
                         continue
 
-                    # Importante: aqui "appendix" passa a ser o label da variante,
-                    # porque o make_overall_plots_bars usa s.appendix para as colunas das barras
+                    # label das colunas: map + variant_new (para não colidir se tiveres vários mapas)
+                    label = f"{m}_{vnew}" if vnew != "base" else f"{m}_base"
                     group.append(Scenario(map_name=m, appendix=label, folder_name=found.folder_name, path=found.path))
 
-                # precisa de pelo menos 2 para comparar
-                if len(group) < 2:
-                    continue
+            # precisa de pelo menos 2 para comparar
+            if len(group) < 2:
+                continue
 
-                group_name = f"{m}_{v}"
-                out_dir = os.path.join(overall_root, group_name)
-                print(f"[INFO] Overall: {group_name} ({', '.join([g.appendix for g in group])}) -> {out_dir}")
-                make_overall_plots_bars(group_name, group, out_dir)
+            group_name = f"{vold}_{a}" if vold != "base" else f"base_{a}"
+            out_dir = os.path.join(overall_root, group_name)
+            print(f"[INFO] Overall: {group_name} ({', '.join([g.appendix for g in group])}) -> {out_dir}")
+            make_overall_plots_bars(group_name, group, out_dir)
 
     print("[DONE] Plots gerados com sucesso.")
 
@@ -715,8 +752,11 @@ if __name__ == "__main__":
     #
     fase_dir = ""   # Para quem rodar dentro do vs usar -> "Fase_0"
     map_names = ["grid"]
-    variants_1 = ["bus_lines", "bus_stops"]
-    variants_2 = ["UserPreference_Baseline", "UserPreference_Time", "UserPreference_Cost", "UserPreference_CO2"]
+    # Variantes NOVAS (ex.: less_buses/more_buses ou bus_lines/bus_stops).
+    # Inclui "base" se também tiveres cenários sem esta variante.
+    variants_new = ["", "bus_lines", "bus_stops"]
+
+    variants = ["UserPreference_Baseline", "UserPreference_Time", "UserPreference_Cost", "UserPreference_CO2"]
     appendices = ["25000"]
 
-    run(fase_dir=fase_dir, map_names=map_names, appendices=appendices, variants_1=variants_1, variants_2=variants_2)
+    run(fase_dir=fase_dir, map_names=map_names, appendices=appendices, variants_new=variants_new, variants=variants)

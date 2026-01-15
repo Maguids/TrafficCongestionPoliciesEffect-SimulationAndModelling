@@ -15,7 +15,7 @@ The goal of this code is to automate the somulations. It allows to:
 
 # VARIABLES TO CHANGE/ADAPT
 MAP_TYPE = ["grid"]
-SPECIFIC_MAP = ["bus_lines", "bus_stops"]
+SPECIFIC_MAP = ["less_buses", "more_buses"]
 POLICY_TYPE = ["UserPreference_Baseline", "UserPreference_Time", "UserPreference_Cost", "UserPreference_CO2"]
 PEOPLE_GLOBAL = [25000]
 # if run inside VS Code add to CSV_CLEANER_FOLDER and OUT_DIR "Fase_0", so it would be like "Fase_0\_clean_csvs_"
@@ -287,13 +287,8 @@ for i in range(len(MAP_TYPE)):
                 for d in (RESULTS_DIR, FLOWS_DIR, RAW_XML, RAW_CSV): d.mkdir(parents=True, exist_ok=True)    
 
                 # --------------- Map Configurations ---------------
-                # --------------- Map Configurations ---------------
-                if SPECIFIC_MAP[l] == "bus_lines":
-                    bus_stops = BUSSTOP_DEFS_GRID
-                    flows = FLOWS_TEMPLATES_GRID
-                else:
-                    bus_stops = BUSSTOP_DEFS_GRID_BS
-                    flows = FLOWS_TEMPLATES_GRID_BS
+                bus_stops = BUSSTOP_DEFS_GRID
+                flows = FLOWS_TEMPLATES_GRID
                 civillian_flows = CIVILLIAN_RIDES_GRID
 
 
