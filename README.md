@@ -85,7 +85,3 @@ python kpi_plot.py
 
 - If you get a `FileNotFoundError` for runs or plots folders, ensure you have run the simulation step and that the folder paths are correct.
 - SUMO must be installed and accessible from your command line.
-
-## Contact
-
-For questions or issues, please open an issue in this repository.
